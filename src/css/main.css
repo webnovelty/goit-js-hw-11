@@ -1,0 +1,22 @@
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+}
+img {
+  max-width: 100%;
+  display: block;
+}
+.photo-card {
+  margin: 5px;
+  width: 20%;
+  border: 1px Black;
+}
+.info {
+  display: flex;
+  text-align: center;
+}
+.info-item {
+  margin-right: 5px;
+}
