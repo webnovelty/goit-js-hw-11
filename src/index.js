@@ -133,6 +133,7 @@ async function loadMore(e) {
 }
 
 async function onSubmitForm(e) {
+	loadButton.style.display = 'none';
 	e.preventDefault();
 	checkQuery();
 
