@@ -5,17 +5,24 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 
 const form = document.querySelector('.search-form');
 const input = form.querySelector('input');
+const loadButton = document.querySelector('.load-more');
+
+
 let page = 1;
 let inputCheck = input.value;
+let hits = 0;
 
 function checkQuery() {
 	if (inputCheck === input.value) {
 		page += 1;
+		hits += 40;
 	}
 	else {
 		page = 1;
+		hits = 0;
 		inputCheck = input.value;
 		clearGallery();
+
 	}
 
 }
@@ -69,13 +76,20 @@ function renderGallery(data) {
 		gallery.options.captionsData = 'alt';
 		gallery.options.captionDelay = 250;
 	});
+	gallery.refresh();
 
 }
 
 function checkNothingQuery(giveData) {
 	if (giveData.total === 0) {
 		Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+		loadButton.style.display = 'none';
+		return;
+
 	}
+	Notiflix.Notify.success(`Hooray! We found ${giveData.totalHits} images.`);
+
+
 }
 
 function clearGallery() {
@@ -83,22 +97,53 @@ function clearGallery() {
 	galleryEl.innerHTML = "";
 }
 
+function smoothScroll() {
+	const { height: cardHeight } = document
+		.querySelector(".gallery")
+		.firstElementChild.getBoundingClientRect();
+
+	window.scrollBy({
+		top: cardHeight * 2,
+		behavior: "smooth",
+	});
+}
+
 form.addEventListener('submit', onSubmitForm);
+loadButton.addEventListener('click', loadMore);
+
+async function loadMore(e) {
+	try {
+		page += 1;
+		e.preventDefault();
+		checkQuery();
+
+		if (hits > 500) {
+			Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
+			return;
+		}
+		const giveData = await fetchData(input.value);
+		renderGallery(giveData.hits);
+		smoothScroll();
+	}
+	catch (error) {
+		Notiflix.Notify.failure("Сорян, больше нет инфы для тебя :(");
+	}
+
+
+}
+
 async function onSubmitForm(e) {
 	e.preventDefault();
 	checkQuery();
 
-	const giveData = await fetchData(input.value);
+	if (hits > 500) {
+		Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
+		return;
+	}
 
+	const giveData = await fetchData(input.value);
+	loadButton.style.display = 'block';
 	checkNothingQuery(giveData);
 	renderGallery(giveData.hits);
+
 }
-
-
-
-
-
-
-
-
-
