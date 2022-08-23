@@ -56,13 +56,10 @@ function smoothScroll() {
 	});
 }
 
-
-function simpleBoxInclude() {
-	gallery.on('show.simplelightbox', function () {
-		gallery.options.captionsData = 'alt';
-		gallery.options.captionDelay = 250;
-	});
-	gallery.refresh();
+function checkHitsLength(array) {
+	if (array.hits.length < 40) {
+		loadButton.style.display = 'none';
+	}
 }
 
 
@@ -76,12 +73,15 @@ async function loadMore(e) {
 
 		if (hits > 500) {
 			Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
+			loadButton.style.display = 'none';
 			return;
 		}
 		const giveData = await fetchData(input.value, page);
 		renderGallery(giveData.hits);
-		simpleBoxInclude();
+		gallery.refresh();
 		smoothScroll();
+		checkHitsLength(giveData);
+
 	}
 	catch (error) {
 		Notiflix.Notify.failure("Сорян, больше нет инфы для тебя :(");
@@ -104,6 +104,8 @@ async function onSubmitForm(e) {
 	loadButton.style.display = 'block';
 	checkNothingQuery(giveData);
 	renderGallery(giveData.hits);
-	simpleBoxInclude();
+	gallery.refresh();
+	checkHitsLength(giveData);
 
 }
+
